@@ -3,13 +3,19 @@ import Pokemon from "./components/Pokemon";
 import PokemonList from "./components/PokemonList";
 import Home from "./components/Home";
 
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(`${Bun.env.SUPABASE_URL}`, `${Bun.env.ANON_KEY}`);
 
 Bun.serve({
     async fetch(request) {
         const url = new URL(request.url);
 
         if (url.pathname === "/") {
-            const stream = await renderToReadableStream(<Home />);
+
+            const { data } = await supabase.from("tiendas").select();
+
+            const stream = await renderToReadableStream(<Home tiendas={data} />);
 
             return new Response(stream, {
                 headers: { "Content-Type": "text/html" },
